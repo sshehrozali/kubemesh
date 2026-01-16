@@ -39,6 +39,14 @@ func main() {
 				fmt.Printf("\nSource IP: %d.%d.%d.%d:%d", srcIP[0], srcIP[1], srcIP[2], srcIP[3], srcPort)
 				fmt.Printf("\nDestination IP: %d.%d.%d.%d:%d", dstIP[0], dstIP[1], dstIP[2], dstIP[3], dstPort)
 
+				packetType := ""
+				
+				if (dstPort == 80) {
+					packetType = "[REQUEST]"
+				} else if (srcPort == 80) {
+					packetType = "[RESPONSE]"
+				}
+
 				flags := data[47]
 				info := ""
 
@@ -58,7 +66,8 @@ func main() {
 					info += "[RST] "
 				}
 
-				fmt.Printf("\nFlags: %s\n", info)
+				fmt.Printf("\nFlags: %s", info)
+				fmt.Printf("\nType: %s\n", packetType)
 
 				payloadIndx := 14 + ipHeaderSize + tcpHeaderSize
 
