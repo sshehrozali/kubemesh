@@ -23,11 +23,11 @@ func main() {
 			for {
 				data, _, _ := handle.ReadPacketData()
 				// fmt.Printf("packets: %s", hex.Dump(data))
-				
-				ipHeaderSize := int(data[14] & 0x0F) * 4
+
+				ipHeaderSize := int(data[14]&0x0F) * 4
 				fmt.Printf("\nIP header size: %d", ipHeaderSize)
 
-				tcpHeaderSize := int(data[46] >> 4) * 4
+				tcpHeaderSize := int(data[46]>>4) * 4
 				fmt.Printf("\nTCP header size: %d", tcpHeaderSize)
 
 				srcIP := data[26:30]
@@ -39,14 +39,32 @@ func main() {
 				fmt.Printf("\nSource IP: %d.%d.%d.%d:%d", srcIP[0], srcIP[1], srcIP[2], srcIP[3], srcPort)
 				fmt.Printf("\nDestination IP: %d.%d.%d.%d:%d", dstIP[0], dstIP[1], dstIP[2], dstIP[3], dstPort)
 
+				flags := data[47]
+				info := ""
+
+				if (flags & 0x02) != 0 {
+					info += "[SYN] "
+				}
+				if (flags & 0x10) != 0 {
+					info += "[ACK] "
+				}
+				if (flags & 0x08) != 0 {
+					info += "[PSH] "
+				}
+				if (flags & 0x01) != 0 {
+					info += "[FIN] "
+				}
+				if (flags & 0x04) != 0 {
+					info += "[RST] "
+				}
+
+				fmt.Printf("\nFlags: %s\n", info)
 
 				payloadIndx := 14 + ipHeaderSize + tcpHeaderSize
 
 				// if a packet size is greater than payload index, then payload exists
-				if (len(data) > payloadIndx) {
+				if len(data) > payloadIndx {
 					fmt.Printf("\n%s", string(data[payloadIndx:]))
-				} else {
-					fmt.Print("\nNo payload")
 				}
 
 				// fmt.Printf("Payload: %s", string(data[66:]))
