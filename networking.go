@@ -30,14 +30,20 @@ func main() {
 				tcpHeaderSize := int(data[46]>>4) * 4
 				fmt.Printf("\nTCP header size: %d", tcpHeaderSize)
 
-				srcIP := data[26:30]
-				dstIP := data[30:34]
+				srcIPBytes := data[26:30]
+				dstIPBytes := data[30:34]
+
+				srcIP := fmt.Sprintf("%d.%d.%d.%d", srcIPBytes[0], srcIPBytes[1], srcIPBytes[2], srcIPBytes[3])
+				dstIP := fmt.Sprintf("%d.%d.%d.%d", dstIPBytes[0], dstIPBytes[1], dstIPBytes[2], dstIPBytes[3])
 
 				srcPort := uint16(data[34])<<8 | uint16(data[35])
 				dstPort := uint16(data[36])<<8 | uint16(data[37])
 
-				fmt.Printf("\nSource IP: %d.%d.%d.%d:%d", srcIP[0], srcIP[1], srcIP[2], srcIP[3], srcPort)
-				fmt.Printf("\nDestination IP: %d.%d.%d.%d:%d", dstIP[0], dstIP[1], dstIP[2], dstIP[3], dstPort)
+				fmt.Printf("\nSource IP: %s:%d", srcIP, srcPort)
+				fmt.Printf("\nDestination IP: %s:%d", dstIP, dstPort)
+
+				binderId := fmt.Sprintf("%s-%d-%s-%d", srcIP, srcPort, dstIP, dstPort)
+				fmt.Printf("\nBinder ID: %s", binderId)
 
 				packetType := ""
 				
