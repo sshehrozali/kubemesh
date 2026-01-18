@@ -1,7 +1,6 @@
 package main
 
 import (
-	// "encoding/hex"
 	"fmt"
 
 	"github.com/google/gopacket/pcap"
@@ -20,52 +19,38 @@ func main() {
 
 			handle.SetBPFFilter("tcp port 80")
 
+			reqPayload := ""
+			respPayload := ""
+
 			for {
 				data, _, _ := handle.ReadPacketData()
 
-				// IP and TCP header sizes
 				ipHeaderSize := int(data[14]&0x0F) * 4
-				fmt.Printf("\nIP header size: %d", ipHeaderSize)
-
 				tcpHeaderSize := int(data[46]>>4) * 4
-				fmt.Printf("\nTCP header size: %d", tcpHeaderSize)
 
-				// IPs
 				srcIPBytes := data[26:30]
 				dstIPBytes := data[30:34]
 
 				srcIP := fmt.Sprintf("%d.%d.%d.%d", srcIPBytes[0], srcIPBytes[1], srcIPBytes[2], srcIPBytes[3])
 				dstIP := fmt.Sprintf("%d.%d.%d.%d", dstIPBytes[0], dstIPBytes[1], dstIPBytes[2], dstIPBytes[3])
 
-				// Ports
 				srcPort := uint16(data[34])<<8 | uint16(data[35])
 				dstPort := uint16(data[36])<<8 | uint16(data[37])
 
-				fmt.Printf("\nSource IP: %s:%d", srcIP, srcPort)
-				fmt.Printf("\nDestination IP: %s:%d", dstIP, dstPort)
-
-				// BinderID to stich packets
 				binderId := fmt.Sprintf("%s-%d-%s-%d", srcIP, srcPort, dstIP, dstPort)
-				fmt.Printf("\nBinder ID: %s", binderId)
 
-				// TCP sequence no
 				tcpSequenceNoBytes := data[38:42]
-				tcpSequenceNo := uint32(tcpSequenceNoBytes[0]) << 24 | uint32(tcpSequenceNoBytes[1]) << 16 | uint32(tcpSequenceNoBytes[2]) << 8 | uint32(tcpSequenceNoBytes[3]) << 0
-				fmt.Printf("\nSequence No: %d", tcpSequenceNo)
+				tcpSequenceNo := uint32(tcpSequenceNoBytes[0])<<24 | uint32(tcpSequenceNoBytes[1])<<16 | uint32(tcpSequenceNoBytes[2])<<8 | uint32(tcpSequenceNoBytes[3])<<0
 
-				// Payload size
 				payloadSize := len(data) - ipHeaderSize - tcpHeaderSize
-				fmt.Printf("Payload size: %d", payloadSize)
 
-				// Packet type
 				packetType := ""
-				if (dstPort == 80) {
+				if dstPort == 80 {
 					packetType = "[REQUEST]"
-				} else if (srcPort == 80) {
+				} else if srcPort == 80 {
 					packetType = "[RESPONSE]"
 				}
 
-				// TCP handshake
 				flags := data[47]
 				info := ""
 				if (flags & 0x02) != 0 {
@@ -84,18 +69,45 @@ func main() {
 					info += "[RST] "
 				}
 
-				fmt.Printf("\nFlags: %s", info)
-				fmt.Printf("\nType: %s\n", packetType)
-
 				payloadIndx := 14 + ipHeaderSize + tcpHeaderSize
 
-				// if a packet size is greater than payload index, then payload exists
-				if len(data) > payloadIndx {
-					fmt.Printf("\n%s", string(data[payloadIndx:]))
+				if packetType == "[REQUEST]" && payloadSize > 0 && (info == "[ACK] [PSH] " || info != "[ACK] [PSH] ") {
+					reqPayload += string(data[payloadIndx:])
 				}
 
-				// fmt.Printf("Payload: %s", string(data[66:]))
-				fmt.Println("\n----")
+				if packetType == "[RESPONSE]" && payloadSize > 0 && (info == "[ACK] [PSH] " || info != "[ACK] [PSH] ") {
+					respPayload += string(data[payloadIndx:])
+				}
+
+				if packetType == "[REQUEST]" && info == "[ACK] [FIN] " {
+					fmt.Print("\n--REQUEST--")
+					fmt.Printf("\nPayload size: %d", payloadSize)
+					fmt.Printf("\nSequence No: %d", tcpSequenceNo)
+					fmt.Printf("\nBinder ID: %s", binderId)
+					fmt.Printf("\nSource IP: %s:%d", srcIP, srcPort)
+					fmt.Printf("\nDestination IP: %s:%d", dstIP, dstPort)
+					fmt.Printf("\nIP header size: %d", ipHeaderSize)
+					fmt.Printf("\nTCP header size: %d", tcpHeaderSize)
+					fmt.Printf("\nPayload: %s", reqPayload)
+					fmt.Println("\n----")
+
+					reqPayload += ""
+				}
+
+				if packetType == "[RESPONSE]" && info == "[ACK] [FIN] " {
+					fmt.Print("\n--RESPONSE--")
+					fmt.Printf("\nPayload size: %d", payloadSize)
+					fmt.Printf("\nSequence No: %d", tcpSequenceNo)
+					fmt.Printf("\nBinder ID: %s", binderId)
+					fmt.Printf("\nSource IP: %s:%d", srcIP, srcPort)
+					fmt.Printf("\nDestination IP: %s:%d", dstIP, dstPort)
+					fmt.Printf("\nIP header size: %d", ipHeaderSize)
+					fmt.Printf("\nTCP header size: %d", tcpHeaderSize)
+					fmt.Printf("\nPayload: %s", respPayload)
+					fmt.Println("\n----")
+
+					respPayload += ""
+				}
 			}
 		}
 	}
