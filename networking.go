@@ -28,13 +28,13 @@ func main() {
 				ipHeaderSize := int(data[14]&0x0F) * 4
 				tcpHeaderSize := int(data[46]>>4) * 4
 
-				srcIP := fmt.Sprintf("%d.%d.%d.%d", data[26], data[27], data[28], data[29])
-				dstIP := fmt.Sprintf("%d.%d.%d.%d", data[30], data[31], data[32], data[33])
+				srcIp := uint32(data[26]) << 24 | uint32(data[27]) << 16 | uint32(data[28]) << 8 | uint32(data[29]) << 0
+				dstIp := uint32(data[30]) << 24 | uint32(data[31]) << 16 | uint32(data[32]) << 8 | uint32(data[33]) << 0
 
 				srcPort := uint16(data[34])<<8 | uint16(data[35])
 				dstPort := uint16(data[36])<<8 | uint16(data[37])
 
-				binderId := fmt.Sprintf("%s-%d-%s-%d", srcIP, srcPort, dstIP, dstPort)
+				binderId := fmt.Sprintf("%d-%d-%d-%d", srcIp, srcPort, dstIp, dstPort)
 
 				tcpSequenceNoBytes := data[38:42]
 				tcpSequenceNo := uint32(tcpSequenceNoBytes[0])<<24 | uint32(tcpSequenceNoBytes[1])<<16 | uint32(tcpSequenceNoBytes[2])<<8 | uint32(tcpSequenceNoBytes[3])<<0
@@ -81,8 +81,8 @@ func main() {
 					fmt.Printf("\nPayload size: %d", payloadSize)
 					fmt.Printf("\nSequence No: %d", tcpSequenceNo)
 					fmt.Printf("\nBinder ID: %s", binderId)
-					fmt.Printf("\nSource IP: %s:%d", srcIP, srcPort)
-					fmt.Printf("\nDestination IP: %s:%d", dstIP, dstPort)
+					fmt.Printf("\nSource IP: %d:%d", srcIp, srcPort)
+					fmt.Printf("\nDestination IP: %d:%d", dstIp, dstPort)
 					fmt.Printf("\nIP header size: %d", ipHeaderSize)
 					fmt.Printf("\nTCP header size: %d", tcpHeaderSize)
 					fmt.Printf("\nPayload: %s", reqPayload)
@@ -96,8 +96,8 @@ func main() {
 					fmt.Printf("\nPayload size: %d", payloadSize)
 					fmt.Printf("\nSequence No: %d", tcpSequenceNo)
 					fmt.Printf("\nBinder ID: %s", binderId)
-					fmt.Printf("\nSource IP: %s:%d", srcIP, srcPort)
-					fmt.Printf("\nDestination IP: %s:%d", dstIP, dstPort)
+					fmt.Printf("\nSource IP: %d:%d", srcIp, srcPort)
+					fmt.Printf("\nDestination IP: %d:%d", dstIp, dstPort)
 					fmt.Printf("\nIP header size: %d", ipHeaderSize)
 					fmt.Printf("\nTCP header size: %d", tcpHeaderSize)
 					fmt.Printf("\nPayload: %s", respPayload)
