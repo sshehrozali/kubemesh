@@ -21,10 +21,16 @@ func (ts *tcpstream) Capture() {
 	buf := make([]byte, 4096)
 
 	for {
-		noOfBytes, _ := ts.reader.Read(buf)
+		noOfBytes, err := ts.reader.Read(buf)
 		ts.data = append(ts.data, buf[:noOfBytes]...)
 
-		fmt.Printf("\nCopied %d bytes.", noOfBytes)
+		// If reached EOF, then print data
+		if err != nil {
+			fmt.Printf("err: %d", err)
+			fmt.Printf("\nData: %s", string(ts.data))
+			ts.data = nil
+			break
+		}
 	}
 }
 
