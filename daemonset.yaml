@@ -14,6 +14,6 @@ spec:
       hostNetwork: true # CRITICAL: This lets you see the node's traffic
       containers:
       - name: sniffer
-        image: my-sniffer:v1
+        image: network:v3
         securityContext:
           privileged: true # CRITICAL: Accessing network interfaces requires root-level permissions

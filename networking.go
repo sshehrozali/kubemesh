@@ -57,8 +57,8 @@ func main() {
 
 	nics, _ := pcap.FindAllDevs()
 	for _, nic := range nics {
-		if nic.Name == "en0" {
-			handle, err := pcap.OpenLive("en0", 1600, true, pcap.BlockForever)
+		if nic.Name == "eth0" {
+			handle, err := pcap.OpenLive("eth0", 1600, true, pcap.BlockForever)
 
 			if err != nil {
 				fmt.Printf("error opening device %d\n\n", err)
