@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: packet-sniffer
+spec:
+  selector:
+    matchLabels:
+      name: packet-sniffer
+  template:
+    metadata:
+      labels:
+        name: packet-sniffer
+    spec:
+      hostNetwork: true # CRITICAL: This lets you see the node's traffic
+      containers:
+      - name: sniffer
+        image: my-sniffer:v1
+        securityContext:
+          privileged: true # CRITICAL: Accessing network interfaces requires root-level permissions
