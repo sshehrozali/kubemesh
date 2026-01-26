@@ -1,3 +1,41 @@
+# Network Listener
+
+A Kubernetes-based network packet sniffer that captures and logs HTTP traffic on worker nodes.
+
+## Quick Start
+
+### Prerequisites
+- [Docker](https://www.docker.com/)
+- [kind](https://kind.sigs.k8s.io/)
+- [kubectl](https://kubernetes.io/docs/tasks/tools/)
+
+### Setup
+
+```bash
+./setup.sh
+```
+
+### Test
+
+```bash
+# External traffic
+curl http://localhost:32407
+
+# Pod-to-pod traffic
+kubectl exec -l app=curl -- curl -s http://10.244.1.2
+
+# View logs
+kubectl logs -l name=packet-sniffer --follow
+```
+
+### Cleanup
+
+```bash
+kind delete cluster
+```
+
+---
+
 # Ethernet Packet Offset Reference
 
 This guide provides the byte indexes for slicing raw network data starting from the Ethernet header (Layer 2).
