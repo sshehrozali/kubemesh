@@ -56,30 +56,22 @@ func main() {
 
 	assembler := tcpassembly.NewAssembler(pool)
 
-	nics, _ := pcap.FindAllDevs()
-	for _, nic := range nics {
-		if nic.Name == "eth0" {
-			handle, err := pcap.OpenLive("eth0", 1600, true, pcap.BlockForever)
+	handle, err := pcap.OpenLive("any", 1600, true, pcap.BlockForever)
 
-			if err != nil {
-				fmt.Printf("error opening device %d\n\n", err)
-			}
+	if err != nil {
+		fmt.Printf("error opening device %d\n\n", err)
+		return
+	}
 
-			handle.SetBPFFilter("tcp port 80")
+	handle.SetBPFFilter("tcp port 80")
 
-			packets := gopacket.NewPacketSource(handle, handle.LinkType())
+	packets := gopacket.NewPacketSource(handle, handle.LinkType())
 
-			for packet := range packets.Packets() {
-				fmt.Printf("Packet captured on eth0: %v\n", packet)
-				tcpLayer := packet.Layer(layers.LayerTypeTCP)
-				if tcpLayer != nil {
-					tcp := tcpLayer.(*layers.TCP)
-					fmt.Printf("TCP packet: %s:%d -> %s:%d\n", 
-						packet.NetworkLayer().NetworkFlow().Src(), tcp.SrcPort,
-						packet.NetworkLayer().NetworkFlow().Dst(), tcp.DstPort)
-					assembler.Assemble(packet.NetworkLayer().NetworkFlow(), tcp)
-				}
-			}
+	for packet := range packets.Packets() {
+		tcpLayer := packet.Layer(layers.LayerTypeTCP)
+		if tcpLayer != nil {
+			tcp := tcpLayer.(*layers.TCP)
+			assembler.Assemble(packet.NetworkLayer().NetworkFlow(), tcp)
 		}
 	}
 }
