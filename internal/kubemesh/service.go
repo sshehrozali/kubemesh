@@ -16,22 +16,24 @@ func (*Service) New() *Service {
 }
 
 func (*Service) Start() {
-	log.Print("starting kubemesh service")
+	log.Print("Starting kubemesh service")
 
 	tsf := &TCPStreamFactory{}
 	pool := tcpassembly.NewStreamPool(tsf)
 	assembler := tcpassembly.NewAssembler(pool)
 
-	log.Print("tcp assembler successfully started")
+	log.Print("TCP assembler successfully started")
 
 	handle, err := pcap.OpenLive("any", 1600, true, pcap.BlockForever)
 	if err != nil {
-		log.Fatal("error opening handle on 'any' device/slot for attached network interface card")
+		log.Fatal("Error opening handle on 'any' device/slot for attached network interface card")
 	}
 
 	handle.SetBPFFilter("tcp port 80")
+	log.Print("BPF filter set successfully")
 	packets := gopacket.NewPacketSource(handle, handle.LinkType())
 
+	log.Print("Service started successfully. Capturing TCP streams...")
 	for packet := range packets.Packets() {
 		tcpLayer := packet.Layer(layers.LayerTypeTCP)
 		if tcpLayer != nil {

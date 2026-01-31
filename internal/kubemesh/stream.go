@@ -1,7 +1,7 @@
 package kubemesh
 
 import (
-	"fmt"
+	"log"
 
 	"github.com/google/gopacket"
 	"github.com/google/gopacket/tcpassembly"
@@ -25,7 +25,7 @@ func (ts *TCPStream) Capture() {
 		ts.data = append(ts.data, buf[:noOfBytes]...)
 
 		if err != nil {
-			fmt.Printf("\nData: \n%s", string(ts.data))
+			log.Printf("\nReceived: \n%s", string(ts.data))
 			ts.data = nil
 			break
 		}
