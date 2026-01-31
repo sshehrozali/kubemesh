@@ -1,6 +1,9 @@
-# Network Listener
+# 🕸️ KubeMesh
+**Lightweight, zero-sidecar HTTP traffic observability for Kubernetes.**
 
-A Kubernetes-based kubemesh kubemesh that captures and logs HTTP traffic on worker nodes.
+**KubeMesh** is a cloud-native network sniffer that provides instant visibility into HTTP API traffic across your Kubernetes nodes. Unlike traditional service meshes, KubeMesh requires **zero sidecars**, no application restarts, and has near-zero overhead on your application pods.
+
+By tapping directly into the host network interface, KubeMesh reconstructs TCP streams and provides structured logs of live API requests, making it the perfect tool for debugging distributed systems and monitoring inter-service communication in real-time.
 
 ## Quick Start
 
