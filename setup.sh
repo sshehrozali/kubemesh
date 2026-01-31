@@ -18,14 +18,14 @@ echo "✓ Cluster created"
 echo ""
 
 # Step 2: Build Docker image
-echo "Step 2: Building Docker image (network:v3)..."
-docker build -t network:v3 .
+echo "Step 2: Building Docker image (kubemesh:v3)..."
+docker build -t kubemesh:v3 .
 echo "✓ Image built"
 echo ""
 
 # Step 3: Load image into kind
 echo "Step 3: Loading image into kind cluster..."
-kind load docker-image network:v3
+kind load docker-image kubemesh:v3
 echo "✓ Image loaded"
 echo ""
 
@@ -41,8 +41,8 @@ kubectl apply -f kubernetes/spring-app.yaml
 echo "✓ Spring app deployed"
 echo ""
 
-# Step 6: Deploy packet sniffer
-echo "Step 6: Deploying packet sniffer DaemonSet..."
+# Step 6: Deploy kubemesh
+echo "Step 6: Deploying kubemesh DaemonSet..."
 kubectl apply -f kubernetes/daemonset.yaml
 echo "✓ Packet sniffer deployed"
 echo ""
@@ -57,7 +57,7 @@ echo ""
 echo "Step 8: Waiting for all pods to be ready..."
 kubectl wait --for=condition=ready pod -l app=my-nginx --timeout=60s
 kubectl wait --for=condition=ready pod -l app=spring-app --timeout=60s
-kubectl wait --for=condition=ready pod -l name=packet-sniffer --timeout=60s
+kubectl wait --for=condition=ready pod -l name=kubemesh --timeout=60s
 kubectl wait --for=condition=ready pod -l app=curl --timeout=60s
 echo "✓ All pods ready"
 echo ""
@@ -74,8 +74,8 @@ echo "Test pod-to-pod traffic:"
 echo "  kubectl exec -l app=curl -- curl -s http://10.244.1.2"
 echo "  kubectl exec -l app=curl -- curl -s http://spring-app.default.svc.cluster.local:3000"
 echo ""
-echo "View packet sniffer logs:"
-echo "  kubectl logs -l name=packet-sniffer --follow"
+echo "View kubemesh logs:"
+echo "  kubectl logs -l name=kubemesh --follow"
 echo ""
 echo "View all pods:"
 echo "  kubectl get pods -o wide"

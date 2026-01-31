@@ -1,19 +1,19 @@
 apiVersion: apps/v1
 kind: DaemonSet
 metadata:
-  name: packet-sniffer
+  name: kubemesh
 spec:
   selector:
     matchLabels:
-      name: packet-sniffer
+      name: kubemesh
   template:
     metadata:
       labels:
-        name: packet-sniffer
+        name: kubemesh
     spec:
       hostNetwork: true # CRITICAL: This lets you see the node's traffic
       containers:
-      - name: sniffer
-        image: network:v3
+      - name: kubemesh
+        image: kubemesh:v3
         securityContext:
-          privileged: true # CRITICAL: Accessing network interfaces requires root-level permissions
+          privileged: true # CRITICAL: Accessing kubemesh interfaces requires root-level permissions

@@ -1,6 +1,6 @@
 # Network Listener
 
-A Kubernetes-based network packet sniffer that captures and logs HTTP traffic on worker nodes.
+A Kubernetes-based kubemesh kubemesh that captures and logs HTTP traffic on worker nodes.
 
 ## Quick Start
 
@@ -25,7 +25,7 @@ curl http://localhost:32407
 kubectl exec -l app=curl -- curl -s http://10.244.1.2
 
 # View logs
-kubectl logs -l name=packet-sniffer --follow
+kubectl logs -l name=kubemesh --follow
 ```
 
 ### Cleanup
@@ -38,7 +38,7 @@ kind delete cluster
 
 # Ethernet Packet Offset Reference
 
-This guide provides the byte indexes for slicing raw network data starting from the Ethernet header (Layer 2).
+This guide provides the byte indexes for slicing raw kubemesh data starting from the Ethernet header (Layer 2).
 
 ### Packet Header Map
 

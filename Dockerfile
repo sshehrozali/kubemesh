@@ -8,9 +8,9 @@ RUN apk add --no-cache libpcap-dev gcc musl-dev
 WORKDIR /app
 COPY . .
 
-# Compile the sniffer
+# Compile the kubemesh
 # We keep CGO enabled because gopacket requires it for libpcap
-RUN CGO_ENABLED=1 GOOS=linux go build -o sniffer .
+RUN CGO_ENABLED=1 GOOS=linux go build -o kubemesh .
 
 # Stage 2: Final Image
 FROM alpine:latest
@@ -19,10 +19,10 @@ FROM alpine:latest
 RUN apk add --no-cache libpcap
 
 # Copy the binary from the builder stage
-COPY --from=builder /app/sniffer /usr/local/bin/sniffer
+COPY --from=builder /app/kubemesh /usr/local/bin/kubemesh
 
 # Give the binary execution permissions
-RUN chmod +x /usr/local/bin/sniffer
+RUN chmod +x /usr/local/bin/kubemesh
 
-# Run the sniffer
-ENTRYPOINT ["/usr/local/bin/sniffer"]
+# Run the kubemesh
+ENTRYPOINT ["/usr/local/bin/kubemesh"]
