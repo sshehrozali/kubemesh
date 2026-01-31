@@ -1,10 +1,18 @@
 package main
 
 import (
-	"fmt"
+	"log"
+	"kubemesh/internal/kubemesh"
 )
 
 func main() {
-	fmt.Println("Started...")
+	log.Print("Initialising kubemesh")
 
+	service := kubemesh.New()
+	handle := service.Start()
+
+	tsf := &kubemesh.TCPStreamFactory{}
+	assembler := service.Assemble(handle, tsf)
+
+	service.Stream(handle, assembler)
 }

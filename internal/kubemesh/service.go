@@ -11,29 +11,37 @@ import (
 
 type Service struct{}
 
-func (*Service) New() *Service {
+func New() *Service {
 	return &Service{}
 }
 
-func (*Service) Start() {
+func (*Service) Start() *pcap.Handle {
 	log.Print("Starting kubemesh service")
-
-	tsf := &TCPStreamFactory{}
-	pool := tcpassembly.NewStreamPool(tsf)
-	assembler := tcpassembly.NewAssembler(pool)
-
-	log.Print("TCP assembler successfully started")
 
 	handle, err := pcap.OpenLive("any", 1600, true, pcap.BlockForever)
 	if err != nil {
 		log.Fatal("Error opening handle on 'any' device/slot for attached network interface card")
 	}
+	log.Print("Handle opened on 'any'")
 
 	handle.SetBPFFilter("tcp port 80")
 	log.Print("BPF filter set successfully")
-	packets := gopacket.NewPacketSource(handle, handle.LinkType())
 
-	log.Print("Service started successfully. Capturing TCP streams...")
+	return handle
+}
+
+func (*Service) Assemble(deviceHandle *pcap.Handle, factory *TCPStreamFactory) *tcpassembly.Assembler {
+	pool := tcpassembly.NewStreamPool(factory)
+	assembler := tcpassembly.NewAssembler(pool)
+
+	log.Print("TCP assembler successfully initialised")
+	return assembler
+}
+
+func (*Service) Stream(deviceHandle *pcap.Handle, assembler *tcpassembly.Assembler) {
+	packets := gopacket.NewPacketSource(deviceHandle, deviceHandle.LinkType())
+
+	log.Print("Capturing TCP streams...")
 	for packet := range packets.Packets() {
 		tcpLayer := packet.Layer(layers.LayerTypeTCP)
 		if tcpLayer != nil {
