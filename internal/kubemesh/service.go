@@ -1,6 +1,7 @@
 package kubemesh
 
 import (
+	"fmt"
 	"log"
 
 	"github.com/google/gopacket"
@@ -18,13 +19,22 @@ func New() *Service {
 func (*Service) Start() *pcap.Handle {
 	log.Print("Starting kubemesh service")
 
+	log.Print("Retriving env secrets...")
+	port := GetEnv("TRAFFIC_PORT", "80")
+	if (!IsValidPort(port)) {
+		log.Fatal("Traffic port is invalid")
+	}
+
+	log.Printf("Using port %s for BPF", port)
+	bpf := fmt.Sprintf("tcp port %s", port)
+
 	handle, err := pcap.OpenLive("any", 1600, true, pcap.BlockForever)
 	if err != nil {
 		log.Fatal("Error opening handle on 'any' device/slot for attached network interface card")
 	}
 	log.Print("Handle opened on 'any'")
 
-	handle.SetBPFFilter("tcp port 80")
+	handle.SetBPFFilter(bpf)
 	log.Print("BPF filter set successfully")
 
 	return handle
