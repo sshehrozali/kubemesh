@@ -12,6 +12,7 @@ import (
 
 const (
 	TRAFFIC_PORT = "TRAFFIC_PORT"
+	NODE_NETWORK_INTERFACE = "NODE_NETWORK_INTERFACE"
 )
 
 type Service struct{}
@@ -29,10 +30,15 @@ func (*Service) Start() *pcap.Handle {
 		log.Fatal("Traffic port is invalid")
 	}
 
+	nic := GetEnv(NODE_NETWORK_INTERFACE, "any")
+	if (!IsValidNodeNic(nic)) {
+		log.Fatal("Invalid node network interface")
+	}
+
 	log.Printf("Using port %s for BPF", port)
 	bpf := fmt.Sprintf("tcp port %s", port)
 
-	handle, err := pcap.OpenLive("any", 1600, true, pcap.BlockForever)
+	handle, err := pcap.OpenLive(nic, 1600, true, pcap.BlockForever)
 	if err != nil {
 		log.Fatal("Error opening handle on 'any' device/slot for attached network interface card")
 	}

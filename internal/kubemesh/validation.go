@@ -13,3 +13,7 @@ func IsValidPort(port string) bool {
 
 	return match
 }
+
+func IsValidNodeNic(nic string) bool {
+	return true
+}
