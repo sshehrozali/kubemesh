@@ -1,28 +1,51 @@
-# Stage 1: Build (Optional if you already have the binary)
-# We use the official Go image to ensure a consistent environment
-FROM golang:1.25.5-alpine AS builder
+# --- Stage 1: Build ---
+# We use BUILDPLATFORM to ensure the builder itself runs on the host's native speed
+FROM --platform=$BUILDPLATFORM golang:1.25-alpine AS builder
 
-# Install libpcap-dev so Go can compile against the pcap headers
-RUN apk add --no-cache libpcap-dev gcc musl-dev
+# 1. Install 'xx' - the magic bridge for cross-compiling CGO
+COPY --from=tonistiigi/xx / /
+
+# 2. Install native build tools for the BUILDER (the machine running the build)
+# We use clang because it is a native cross-compiler, unlike gcc
+RUN apk add --no-cache clang lld libpcap-dev gcc musl-dev
+
+# 3. Setup the TARGET environment
+ARG TARGETPLATFORM
+# This tells 'xx' to pull the libpcap and musl headers for the target (e.g., AMD64)
+RUN xx-apk add --no-cache libpcap-dev musl-dev
 
 WORKDIR /app
+
+# Cache Go modules
+COPY go.mod go.sum ./
+RUN go mod download
+
 COPY . .
 
-# Compile the kubemesh
-# We keep CGO enabled because gopacket requires it for libpcap
-RUN CGO_ENABLED=1 GOOS=linux go build -o kubemesh .
+# 4. Build with xx-go
+# xx-go automatically sets CC, CXX, and other env vars for the target
+ARG TARGETOS TARGETARCH
+RUN CGO_ENABLED=1 xx-go build \
+    -ldflags="-s -w" \
+    -o /kubemesh ./cmd/kubemesh/main.go && \
+    xx-verify /kubemesh
 
-# Stage 2: Final Image
-FROM alpine:latest
+# --- Stage 2: Final Runtime ---
+# This stage defaults to the TARGETPLATFORM automatically
+FROM alpine:3.19
 
-# Install libpcap (the runtime library)
-RUN apk add --no-cache libpcap
+# Install only the runtime library (no -dev headers needed here)
+RUN apk add --no-cache libpcap ca-certificates
 
-# Copy the binary from the builder stage
-COPY --from=builder /app/kubemesh /usr/local/bin/kubemesh
+# Copy the optimized binary
+COPY --from=builder /kubemesh /usr/local/bin/kubemesh
 
-# Give the binary execution permissions
-RUN chmod +x /usr/local/bin/kubemesh
+# Product Metadata
+LABEL org.opencontainers.image.title="KubeMesh"
+LABEL org.opencontainers.image.description="Zero-sidecar K8s traffic observability"
 
-# Run the kubemesh
+# Default Production Config
+ENV TRAFFIC_PORT=80
+ENV GOMEMLIMIT=384MiB
+
 ENTRYPOINT ["/usr/local/bin/kubemesh"]

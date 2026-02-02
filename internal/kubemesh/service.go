@@ -10,6 +10,10 @@ import (
 	"github.com/google/gopacket/tcpassembly"
 )
 
+const (
+	TRAFFIC_PORT = "TRAFFIC_PORT"
+)
+
 type Service struct{}
 
 func New() *Service {
@@ -20,7 +24,7 @@ func (*Service) Start() *pcap.Handle {
 	log.Print("Starting kubemesh service")
 
 	log.Print("Retriving env secrets...")
-	port := GetEnv("TRAFFIC_PORT", "80")
+	port := GetEnv(TRAFFIC_PORT, "80")
 	if (!IsValidPort(port)) {
 		log.Fatal("Traffic port is invalid")
 	}

@@ -13,7 +13,7 @@ FULL_IMAGE_NAME = $(DOCKER_USER)/$(IMAGE_NAME)
 # Default target: show help
 help:
 	@echo "================================================================"
-	@echo "KubeMesh Build System"
+	@echo "Kubemesh Build System"
 	@echo "================================================================"
 	@echo "Usage:"
 	@echo "  make build-local  - Build for your current machine architecture"
@@ -27,7 +27,7 @@ build-local:
 	docker build -t $(FULL_IMAGE_NAME):latest .
 	@echo "Local build complete: $(FULL_IMAGE_NAME):latest"
 
-# 2. Multi-Arch Release (The "Product Launch" command)
+# 2. Multi-Arch Release
 release:
 	@echo "Setting up Docker Buildx..."
 	# Create and use a new builder instance if it doesn't exist
