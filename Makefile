@@ -5,7 +5,6 @@ VERSION      ?= v1.0.0
 PLATFORMS    ?= linux/amd64,linux/arm64
 BUILDER_NAME ?= kubemesh-builder
 
-# --- Helper Variables ---
 FULL_IMAGE_NAME = $(DOCKER_USER)/$(IMAGE_NAME)
 
 .PHONY: help build-local release clean
@@ -21,6 +20,10 @@ help:
 	@echo "  make clean        - Remove local build artifacts"
 	@echo "================================================================"
 
+docker-login:
+	@echo "Logging into Docker Hub..."
+	docker login
+
 # 1. Local Build (Fastest for testing on your current machine)
 build-local:
 	@echo "Building locally for current architecture..."
@@ -28,7 +31,7 @@ build-local:
 	@echo "Local build complete: $(FULL_IMAGE_NAME):latest"
 
 # 2. Multi-Arch Release
-release:
+release: docker-login
 	@echo "Setting up Docker Buildx..."
 	# Create and use a new builder instance if it doesn't exist
 	docker buildx create --name $(BUILDER_NAME) --use || docker buildx use $(BUILDER_NAME)
