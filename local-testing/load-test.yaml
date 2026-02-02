@@ -16,12 +16,16 @@ spec:
       containers:
       - name: fortio
         image: fortio/fortio
+        command: ["fortio"]
         args:
           - load
-          - -c 32       # 32 simultaneous connections
-          - -qps 500    # 500 queries per second
-          - -t 5m       # Run for 5 minutes
-          - http://nginx-target.kubemesh-stress.svc.cluster.local
+          - -c
+          - "16"
+          - -qps
+          - "200" 
+          - -t
+          - "10m"
+          - http://nginx-target.kube-system.svc.cluster.local
 ---
 apiVersion: apps/v1
 kind: Deployment
