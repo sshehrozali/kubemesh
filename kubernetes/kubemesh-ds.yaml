@@ -29,12 +29,10 @@ spec:
         
         # Performance/Stability settings
         env:
-        - name: KUBEMESH_INTERFACE
-          value: "eth0"
         - name: TRAFFIC_PORT
           value: "80"
         - name: GOMEMLIMIT
-          value: "384MiB"
+          value: "384Mi"
 
         # SECURITY: Sniffing requires raw socket access
         securityContext:
@@ -47,10 +45,10 @@ spec:
         resources:
           requests:
             cpu: "100m"
-            memory: "128MiB"
+            memory: "128Mi"
           limits:
             cpu: "500m"
-            memory: "512MiB"
+            memory: "512Mi"
 
       # Ensure it can run on master/control-plane nodes if needed
       tolerations:
