@@ -31,8 +31,6 @@ spec:
         env:
         - name: TRAFFIC_PORT
           value: "80"
-        - name: GOMEMLIMIT
-          value: "384Mi"
 
         # SECURITY: Sniffing requires raw socket access
         securityContext:

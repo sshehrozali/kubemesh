@@ -1,7 +1,7 @@
 # --- Kubemesh Build Configuration ---
 DOCKER_USER  ?= shehrozdevhub
 IMAGE_NAME   ?= kubemesh
-VERSION      ?= v1.0.0
+VERSION      ?= v1.0.1
 PLATFORMS    ?= linux/amd64,linux/arm64
 BUILDER_NAME ?= kubemesh-builder
 

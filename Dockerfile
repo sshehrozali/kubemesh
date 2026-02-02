@@ -46,6 +46,5 @@ LABEL org.opencontainers.image.description="Zero-sidecar K8s traffic observabili
 
 # Default Production Config
 ENV TRAFFIC_PORT=80
-ENV GOMEMLIMIT=384MiB
 
 ENTRYPOINT ["/usr/local/bin/kubemesh"]
