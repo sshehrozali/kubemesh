@@ -1,0 +1,57 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: kubemesh
+  namespace: kube-system # Usually best for infra tools
+  labels:
+    app: kubemesh
+spec:
+  selector:
+    matchLabels:
+      app: kubemesh
+  template:
+    metadata:
+      labels:
+        app: kubemesh
+    spec:
+      # CRITICAL: This allows the pod to see the node's real network interfaces (eth0, etc.)
+      hostNetwork: true
+      
+      # Optional: Only run on your "identity" nodes
+      nodeSelector:
+        domain: identity
+
+      containers:
+      - name: kubemesh
+        image: your-docker-user/kubemesh:latest
+        imagePullPolicy: Always
+        
+        # Performance/Stability settings
+        env:
+        - name: KUBEMESH_INTERFACE
+          value: "eth0"
+        - name: TRAFFIC_PORT
+          value: "80"
+        - name: GOMEMLIMIT
+          value: "384MiB"
+
+        # SECURITY: Sniffing requires raw socket access
+        securityContext:
+          capabilities:
+            add:
+              - NET_RAW
+              - NET_ADMIN
+          privileged: false # Keep it as secure as possible
+        
+        resources:
+          requests:
+            cpu: "100m"
+            memory: "128MiB"
+          limits:
+            cpu: "500m"
+            memory: "512MiB"
+
+      # Ensure it can run on master/control-plane nodes if needed
+      tolerations:
+      - operator: Exists
+        effect: NoSchedule
