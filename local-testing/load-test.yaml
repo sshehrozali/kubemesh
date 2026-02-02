@@ -1,0 +1,54 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: load-generator
+  namespace: kube-system
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: load-generator
+  template:
+    metadata:
+      labels:
+        app: load-generator
+    spec:
+      containers:
+      - name: fortio
+        image: fortio/fortio
+        args:
+          - load
+          - -c 32       # 32 simultaneous connections
+          - -qps 500    # 500 queries per second
+          - -t 5m       # Run for 5 minutes
+          - http://nginx-target.kubemesh-stress.svc.cluster.local
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-target
+  namespace: kube-system
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nginx-target
+  template:
+    metadata:
+      labels:
+        app: nginx-target
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:alpine
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx-target
+  namespace: kube-system
+spec:
+  ports:
+  - port: 80
+  selector:
+    app: nginx-target
