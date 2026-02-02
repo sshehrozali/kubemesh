@@ -24,7 +24,7 @@ spec:
 
       containers:
       - name: kubemesh
-        image: your-docker-user/kubemesh:latest
+        image: shehrozdevhub/kubemesh:latest
         imagePullPolicy: Always
         
         # Performance/Stability settings
