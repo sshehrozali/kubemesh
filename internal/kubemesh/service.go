@@ -32,7 +32,7 @@ func (s *Service) Start() *pcap.Handle {
 	if err != nil {
 		log.Fatal("Error opening handle on 'any' device/slot for attached network interface card")
 	}
-	log.Printf("Handle opened on %s", nic)
+	log.Printf("Handle opened on %s", s.NodeNetworkInterface)
 
 	handle.SetBPFFilter(bpf)
 	log.Print("BPF filter set successfully")
