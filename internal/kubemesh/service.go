@@ -10,35 +10,25 @@ import (
 	"github.com/google/gopacket/tcpassembly"
 )
 
-const (
-	TRAFFIC_PORT = "TRAFFIC_PORT"
-	NODE_NETWORK_INTERFACE = "NODE_NETWORK_INTERFACE"
-)
-
-type Service struct{}
-
-func New() *Service {
-	return &Service{}
+type Service struct {
+	TrafficPort          string
+	NodeNetworkInterface string
 }
 
-func (*Service) Start() *pcap.Handle {
+func New(tp string, nic string) *Service {
+	return &Service{
+		TrafficPort:          tp,
+		NodeNetworkInterface: nic,
+	}
+}
+
+func (s *Service) Start() *pcap.Handle {
 	log.Print("Starting kubemesh service")
 
-	log.Print("Retriving env secrets...")
-	port := GetEnv(TRAFFIC_PORT, "80")
-	if (!IsValidPort(port)) {
-		log.Fatal("Traffic port is invalid")
-	}
+	log.Printf("Using port %s for BPF", s.TrafficPort)
+	bpf := fmt.Sprintf("tcp port %s", s.TrafficPort)
 
-	nic := GetEnv(NODE_NETWORK_INTERFACE, "any")
-	if (!IsValidNodeNic(nic)) {
-		log.Fatal("Invalid node network interface")
-	}
-
-	log.Printf("Using port %s for BPF", port)
-	bpf := fmt.Sprintf("tcp port %s", port)
-
-	handle, err := pcap.OpenLive(nic, 1600, true, pcap.BlockForever)
+	handle, err := pcap.OpenLive(s.NodeNetworkInterface, 1600, true, pcap.BlockForever)
 	if err != nil {
 		log.Fatal("Error opening handle on 'any' device/slot for attached network interface card")
 	}

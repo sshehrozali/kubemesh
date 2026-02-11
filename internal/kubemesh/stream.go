@@ -1,6 +1,9 @@
 package kubemesh
 
 import (
+	"bufio"
+	"bytes"
+	"io"
 	"log"
 
 	"github.com/google/gopacket"
@@ -25,6 +28,8 @@ func (ts *TCPStream) Capture() {
 		ts.data = append(ts.data, buf[:noOfBytes]...)
 
 		if err != nil {
+			b := bufio.NewReader(bytes.NewReader(ts.data))
+			
 			log.Printf("\nReceived: \n%s", string(ts.data))
 			ts.data = nil
 			break

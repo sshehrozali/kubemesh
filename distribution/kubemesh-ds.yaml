@@ -30,7 +30,7 @@ spec:
         # Performance/Stability settings
         env:
         - name: TRAFFIC_PORT
-          value: "80"
+          value: "5000"
         - name: NODE_NETWORK_INTERFACE
           value: "any"
 
